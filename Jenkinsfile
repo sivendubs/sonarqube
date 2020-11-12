@@ -4,20 +4,21 @@ pipeline {
         maven 'Maven'    
     }
    stages {
-    stage('Build image') {
+    stage('Build Sonarqube') {
       steps {
         script {
-          dockerImage= docker.build("joji/apiops-anypoint-jenkins-sapi")
+          sh "dockerImage= docker.build("sivendu/sonarqube-mule")"
+            docker build --tag=alawaniy/sonarqube-mule
         }
 
         echo 'image built'
       }
     }
 
-    stage('Run container') {
+    stage('Run Sonarqube') {
       steps {
         script {
-          sh 'docker run -itd -p 8081:8081 --name apiops-anypoint-jenkins-sapi  joji/apiops-anypoint-jenkins-sapi'
+          sh 'docker run -itd -p 9000:9000 --name sonarqube-mule  sivendu/sonarqube-mule'
         }
 
         echo 'container running'
