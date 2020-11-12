@@ -16,8 +16,8 @@ pipeline {
     stage('Run Sonarqube') {
       steps {
         script {
-          sh "docker stop sonarqube-mule" 
-          sh "docker rm sonarqube-mule"   
+          sh "/Applications/Docker.app/Contents/Resources/bin/docker stop sonarqube-mule" 
+          sh "/Applications/Docker.app/Contents/Resources/bin/docker rm sonarqube-mule"   
           sh '/Applications/Docker.app/Contents/Resources/bin/docker run -d -p 9000:9000 --name sonarqube-mule  sivendu/sonarqube-mule'
         }
       }
