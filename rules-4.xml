@@ -1,0 +1,297 @@
+<rulestore type="mule4">
+	<ruleset category="application">
+		<rule id="1"
+			name="Application should have used APIKit to auto-generate the implementation interface"
+			description="Application should have used APIKit to auto-generate the implementation interface"
+			severity="MAJOR" applies="application" type="code_smell">
+			count(//mule:mule/apikit:config)>0
+		</rule>
+		<rule id="2"
+			name="Application should have an APIKit Global exception strategy"
+			description="Application should have an APIKit Global exception strategy"
+			severity="MAJOR" applies="application" type="code_smell">
+			starts-with(//mule:on-error-propagate/@type,'APIKIT')
+		</rule>
+	</ruleset>
+	<ruleset category="flows">
+		<rule id="1"
+			name="Configuration files should not have so many flows"
+			description="Configuration files should not have so many flows"
+			severity="MAJOR" type="code_smell">
+			not(count(//mule:mule/mule:flow)>=10)
+		</rule>
+		<rule id="2"
+			name="Configuration files should not have so many subflows"
+			description="Configuration files should not have so many subflows"
+			severity="MAJOR" type="code_smell">
+			not(count(//mule:mule/mule:sub-flow)>=5)
+		</rule>
+		<rule id="3" name="Flows names should match a naming convention"
+			description="Flows names should match a naming convention"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/mule:flow)=0 or
+			matches(//mule:mule/mule:flow/@name, '^[a-z:\\{}]+(-[a-z]+)*$')
+		</rule>
+		<rule id="4"
+			name="SubFlows names should match a naming convention"
+			description="SubFlows names should match a naming convention"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/mule:sub-flow)=0 or
+			matches(//mule:mule/mule:sub-flow/@name, '^[a-z:\\{}]+(-[a-z]+)*$')
+		</rule>
+		<rule id="5" name="Encryption key should not be logged"
+			description="Encryption key should not be logged" severity="MAJOR"
+			type="vulnerability">
+			count(//mule:mule/mule:flow/mule:logger[contains(@message,'${mule.key}')])=0
+			and
+			count(//mule:mule/mule:sub-flow/mule:logger[contains(@message,'${mule.key}')])=0
+		</rule>
+	</ruleset>
+	<ruleset category="configuration">
+		<rule id="1"
+			name="Credentials and resources should be managed with application properties"
+			description="Credentials and resources should be managed with application properties"
+			severity="MAJOR" applies="application" type="bug">
+			count(//mule:mule/secure-properties:config)>=1 or
+			count(//mule:mule/mule:configuration-properties)>=1
+		</rule>
+		<rule id="2"
+			name="Mule Credentials Vault should not use a hardcoded encryption key"
+			description="Mule Credentials Vault should not use a hardcoded encryption key"
+			severity="MAJOR" type="bug">
+			count(//mule:mule/secure-properties:config)=0
+			or
+			matches(//mule:mule/secure-properties:config/@key, '^\$\{.*\}$')
+		</rule>
+		<rule id="3"
+			name="Data Transformations should be stored in external DWL Files - Payload"
+			description="Data Transformations should be stored in external DWL Files - Payload"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/mule:flow/ee:transform/ee:message/ee:set-payload)=0
+			or
+			matches(//mule:mule/mule:flow/ee:transform/ee:message/ee:set-payload/@resource,'^.*dwl$')
+		</rule>
+		<rule id="4"
+			name="Data Transformations should be stored in external DWL Files - Variable"
+			description="Data Transformations should be stored in external DWL Files - Variable"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/mule:flow/ee:transform/ee:message/ee:set-variable)=0
+			or
+			matches(//mule:mule/mule:flow/ee:transform/ee:message/ee:set-variable/@resource,'^.*dwl$')
+		</rule>
+		<rule id="5"
+			name="HTTP Listener should use a specific port property"
+			description="HTTP Listener should use a specific port property"
+			severity="MAJOR" type="bug">
+			count(//mule:mule/http:listener-config)=0
+			or
+			//mule:mule/http:listener-config/http:listener-connection/@port='${http.port}'
+			or
+			//mule:mule/http:listener-config/http:listener-connection/@port='${http.private.port}'
+		</rule>
+		<rule id="6"
+			name="MYSQL - DB Host name should not use a hardcoded value"
+			description="DB Host name should not use a 	&lt;b&gt;hardcoded value&lt;/b&gt;"
+			severity="MAJOR" type="code_smell">
+			count(//mule:mule/db:config)=0
+			or
+			matches(//mule:mule/db:config/db:my-sql-connection/@host,
+			'^\$\{.*\}$')
+		</rule>
+		<rule id="7"
+			name="MYSQL - DB username should not use a hardcoded value"
+			description="DB username should not use a 	&lt;b&gt;hardcoded value&lt;/b&gt;"
+			severity="MAJOR" type="code_smell">
+			count(//mule:mule/db:config)=0
+			or
+			matches(//mule:mule/db:config/db:my-sql-connection/@user,
+			'^\$\{.*\}$')
+		</rule>
+		<rule id="8"
+			name="MYSQL - DB password should not use a hardcoded value"
+			description="DB password should not use a 	&lt;b&gt;hardcoded value&lt;/b&gt;"
+			severity="MAJOR" type="vulnerability">
+			count(//mule:mule/db:config)=0
+			or
+			matches(//mule:mule/db:config/db:my-sql-connection/@password,
+			'^\$\{.*\}$')
+		</rule>
+		<rule id="10"
+			name="HTTP Requestor should have a meaningful name"
+			description="HTTP Requestor should have a meaningful name"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/flow/http:request[@doc:name != 'Request'])=0
+		</rule>
+		<rule id="11"
+			name="HTTP Requestor host name should not be hardcoded"
+			description="HTTP Requestor host name should not be hardcoded"
+			severity="MAJOR" type="code_smell">
+			count(//mule:mule/http:request-config/http:request-connection)=0
+			or
+			matches(//mule:mule/http:request-config/http:request-connection/@host,
+			'^\$\{.*\}$')
+		</rule>
+		<rule id="12"
+			name="HTTP Requestor port should not be hardcoded"
+			description="HTTP Requestor port should not be hardcoded"
+			severity="MAJOR" type="code_smell">
+			count(//mule:mule/http:request-config/http:request-connection)=0
+			or
+			matches(//mule:mule/http:request-config/http:request-connection/@port,
+			'^\$\{.*\}$')
+		</rule>
+		<rule id="13"
+			name="HTTP Requestor path should not be hardcoded"
+			description="HTTP Requestor path should not be hardcoded"
+			severity="MAJOR" type="code_smell">
+			count(//mule:mule/http:request-config/http:request-connection)=0
+			or
+			matches(//mule:mule/flow/http:request/@path,'^\$\{.*\}$')
+		</rule>
+		<rule id="14"
+			name="DB configuartion name should follow naming convention"
+			description="DB configuartion name should follow naming convention"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/db:config)=0
+			or
+			matches(//mule:mule/db:config/@name,'^[a-z:\\{}]+([A-Z][a-z]+)*$')
+		</rule>
+		<rule id="15"
+			name="Http Requestor configuration name should follow naming convention"
+			description="Http Requestor configuartion name should follow naming convention"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/http:request-config/http:request-connection)=0
+			or
+			matches(//mule:mule/http:request-config/@name,'^[a-z:\\{}]+([A-Z][a-z]+)*$')
+		</rule>
+		<rule id="16"
+			name="HTTP Listener Configuration should follow naming convention"
+			description="HTTP Listener Configuration should follow naming convention"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/http:listener-config)=0
+			or
+			matches(//mule:mule/http:listener-config/@name,'^[a-z:\\{}]+([A-Z][a-z]+)*$')
+		</rule>
+		<rule id="17"
+			name="External dwl file should follow naming convention"
+			description="External dwl file should follow naming convention"
+			severity="MINOR" type="code_smell">
+			(count(//mule:mule/mule:flow/ee:transform/ee:message/ee:set-payload)=0
+			or
+			matches(//mule:mule/mule:flow/ee:transform/ee:message/ee:set-payload/@resource,'[a-z:\\{}]+(-[a-z]+).*dwl$'))
+			and
+			(count(//mule:mule/mule:flow/ee:transform/ee:message/ee:set-variable)=0
+			or
+			matches(//mule:mule/mule:flow/ee:transform/ee:message/ee:set-variable/@resource,'[a-z:\\{}]+(-[a-z]+).*dwl$'))
+		</rule>
+		<rule id="18"
+			name="There should be sperate application properties file for each environment"
+			description="There should be sperate application properties file for each environment"
+			severity="MINOR" applies="application" type="code_smell">
+			count(//mule:mule/secure-properties:config[contains(@file,'${env}')])=1
+			or
+			count(//mule:mule/mule:configuration-properties[contains(@file,'${env}')])=1
+		</rule>	
+		<rule id="19"
+			name="Munit file should follow naming convention"
+			description="Munit file should follow naming convention"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/munit:config)=0
+			or
+			matches(//mule:mule/munit:config/@name,'^[a-z:\\{}]+(-[a-z]+)*.xml$')	
+		</rule>	
+		<rule id="20"
+			name="Munit flow name should match naming convention"
+			description="Munit flow name should match naming convention"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/munit:config)=0
+			or
+			matches(//mule:mule/munit:test/@name,'^[a-z:\\{}]+(-[a-z]+)*$')	
+		</rule>	
+		<rule id="21"
+			name="HTTP Listener host should not be hardcoded"
+			description="HTTP Listener host should not be hardcoded"
+			severity="MINOR" type="code_smell">
+			count(//mule:mule/http:listener-config)=0
+			or
+			matches(//mule:mule/http:listener-config/http:listener-connection/@host,'^\$\{.*\}$')
+		</rule>
+		<rule id="32"
+			name="Domain - HTTP Requestor reconnection strategy should use configurable frequency"
+			description="&lt;b&gt;Domain&lt;/b&gt; - HTTP Requestor reconnection strategy should use configurable frequency"
+			severity="MAJOR" applies="file" type="bug">
+			count(//domain:mule-domain/http:request-config/http:request-connection)
+			= count(
+			//domain:mule-domain/http:request-config/http:request-connection/mule:reconnection/mule:reconnect[matches(@frequency,'^\$\{.*\}$')]
+			)
+		</rule>
+		<rule id="33"
+			name="Domain - Mule Secure Properties should use AES-CBC algorithm"
+			description="&lt;b&gt;Domain&lt;/b&gt; - Mule Secure Properties should use AES-CBC algorithm"
+			severity="MAJOR" applies="file" type="vulnerability">
+			count(//domain:mule-domain/secure-properties:config/secure-properties:encrypt[@algorithm!='AES'
+			or @mode!='CBC']) = 0
+		</rule>
+		<rule id="34"
+			name="Domain - HTTP Listener should not use a hardcoded port value"
+			description="&lt;b&gt;Domain&lt;/b&gt; - HTTP Listener should not use a hardcoded port value"
+			severity="MAJOR" applies="file" type="code_smell">
+			count(//domain:mule-domain/http:listener-config)=0
+			or
+			matches(//domain:mule-domain/http:listener-config/http:listener-connection/@port,
+			'^\$\{.*\}$')
+		</rule>
+		<rule id="35"
+			name="Domain - HTTP Requestor Configuration should reference a TLS Configuration"
+			description="&lt;b&gt;Domain&lt;/b&gt; - HTTP Requestor should reference a TLS Configuration"
+			severity="MINOR" applies="file" type="bug">
+			count(//domain:mule-domain/http:request-config) =
+			count(//domain:mule-domain/http:request-config/http:request-connection[matches(@tlsContext,'^\$\{.*\}$')])
+		</rule>
+		<rule id="36"
+			name="Domain - Trust Store Configuration should use a configurable path"
+			description="&lt;b&gt;Domain&lt;/b&gt; - Trust Store Configuration should use a configurable path"
+			severity="MINOR" applies="file" type="vulnerability">
+			count(//domain:mule-domain/tls:context/tls:trust-store) =
+			count(//domain:mule-domain/tls:context/tls:trust-store[matches(@path,'^\$\{.*\}$')])
+		</rule>
+		<rule id="37"
+			name="Domain - Key Store Configuration should use a configurable path"
+			description="&lt;b&gt;Domain&lt;/b&gt; - Key Store Configuration should use a configurable path"
+			severity="MINOR" applies="file" type="vulnerability">
+			count(//domain:mule-domain/tls:context/tls:key-store) =
+			count(//domain:mule-domain/tls:context/tls:key-store[matches(@path,'^\$\{.*\}$')])
+		</rule>
+		<rule id="38"
+			name="Domain - Trust Store Configuration should not have the insecure attribute"
+			description="&lt;b&gt;Domain&lt;/b&gt; - Trust Store Configuration should not have the insecure attribute"
+			severity="CRITICAL" applies="file" type="vulnerability">
+			count(//domain:mule-domain/tls:context/tls:trust-store) =
+			count(//domain:mule-domain/tls:context/tls:trust-store[not(@insecure)])
+		</rule>
+		<rule id="39"
+			name="Domain - HTTPS Listener should have a TLS Configuration"
+			description="&lt;b&gt;Domain&lt;/b&gt; - HTTPS Listener should have a TLS Configuration"
+			severity="MAJOR" applies="file" type="vulnerability">
+			count(//domain:mule-domain/http:listener-config/http:listener-connection[@protocol='HTTPS'
+			and not(@tlsContext)])=0
+		</rule>
+		<rule id="40"
+			name="Domain - HTTP Requestor Configuration should not use dynamic default headers or query params"
+			description="&lt;b&gt;Domain&lt;/b&gt; - HTTP Requestor Configuration should not use dynamic default headers or query params"
+			severity="CRITICAL" applies="file" type="code_smell">
+			count(//domain:mule-domain/http:request-config/http:default-headers/http:default-header[matches(@value,'^#\[.*\]$')])
+			= 0
+			and
+			count(//domain:mule-domain/http:request-config/http:default-query-params/http:query-param[matches(@value,'^#\[.*\]$')])
+			= 0
+		</rule>
+		<rule id="41"
+			name="Domain - HTTP Requestor Configuration should have a configurable Response Timeout"
+			description="&lt;b&gt;Domain&lt;/b&gt; - HTTP Requestor Configuration should have a configurable Response Timeout"
+			severity="CRITICAL" applies="file" type="bug">
+			count(//domain:mule-domain/http:request-config[not(@responseTimeout)
+			or not(matches(@responseTimeout,'^\$\{.*\}$'))]) = 0
+		</rule>
+	</ruleset>
+</rulestore>
